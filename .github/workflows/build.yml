@@ -3,7 +3,7 @@ on: [push, pull_request]
 name: build
 
 jobs:
-  msrv:
+  msrv_build:
     name: Verify the MSRV
     runs-on: ubuntu-latest
     steps:
@@ -22,8 +22,8 @@ jobs:
         with:
           command: build
 
-  stable:
-    name: Check formatting, run lints and tests
+  check_fmt:
+    name: Check formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -34,7 +34,7 @@ jobs:
         with:
           toolchain: stable
           override: true
-          components: rustfmt, clippy
+          components: rustfmt
 
       - name: Check formatting
         uses: actions-rs/cargo@v1
@@ -42,13 +42,40 @@ jobs:
           command: fmt
           args: --all -- --check
 
-      - name: Run lints
-        uses: actions-rs/cargo@v1
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          command: clippy
-          args: -- -D warnings
+          toolchain: stable
+          override: true
 
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+  lint:
+    name: Run lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Run lints
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -D warnings
