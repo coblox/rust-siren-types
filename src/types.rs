@@ -72,7 +72,7 @@ impl Entity {
         }
     }
 
-    pub fn with_class_member<S: Into<String>>(mut self, class_member: S) -> Self {
+    pub fn with_class_member(mut self, class_member: impl Into<String>) -> Self {
         self.class.push(class_member.into());
 
         self
@@ -118,7 +118,7 @@ impl SubEntity {
         SubEntity::Link { inner: entity_link }
     }
 
-    pub fn from_entity<R: Clone + Into<String>>(entity: Entity, rels: &[R]) -> Self {
+    pub fn from_entity(entity: Entity, rels: &[impl Into<String> + Clone]) -> Self {
         SubEntity::Embedded {
             inner: entity,
             rel: rels.iter().map(|rel| rel.clone().into()).collect(),
@@ -173,7 +173,7 @@ pub struct NavigationalLink {
 }
 
 impl NavigationalLink {
-    pub fn new<R: Clone + Into<String>, H: Into<String>>(rels: &[R], href: H) -> Self {
+    pub fn new(rels: &[impl Into<String> + Clone], href: impl Into<String>) -> Self {
         Self {
             href: href.into(),
             rel: rels.iter().map(|rel| rel.clone().into()).collect(),
@@ -181,6 +181,24 @@ impl NavigationalLink {
             title: None,
             _type: None,
         }
+    }
+
+    pub fn with_class_member(mut self, class_member: impl Into<String>) -> Self {
+        self.class.push(class_member.into());
+
+        self
+    }
+
+    pub fn with_type(mut self, _type: impl Into<String>) -> Self {
+        self._type = Some(_type.into());
+
+        self
+    }
+
+    pub fn with_title(mut self, title: impl Into<String>) -> Self {
+        self.title = Some(title.into());
+
+        self
     }
 }
 
