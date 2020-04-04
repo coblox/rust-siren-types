@@ -1,9 +1,7 @@
-use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 
 #[readonly::make]
-#[derive(Debug, Serialize, Deserialize, Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Entity {
     /// Describes the nature of an entity's content based on the current
     /// representation. Possible values are implementation-dependent and should
@@ -14,7 +12,6 @@ pub struct Entity {
     /// Siren, this is an object such as { "name": "Kevin", "age": 30 }.
     /// Optional.
     #[serde(default)]
-    #[derivative(Default(value = "serde_json::Value::Object(serde_json::Map::new())"))]
     pub properties: serde_json::Value,
     /// A collection of related sub-entities. If a sub-entity contains an href
     /// value, it should be treated as an embedded link. Clients may choose to
@@ -41,6 +38,19 @@ pub struct Entity {
     /// Descriptive text about the entity. Optional.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
+}
+
+impl Default for Entity {
+    fn default() -> Self {
+        Self {
+            class: Vec::default(),
+            properties: serde_json::Value::Object(serde_json::Map::default()),
+            entities: Vec::default(),
+            links: Vec::default(),
+            actions: Vec::default(),
+            title: None,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -265,64 +275,4 @@ pub struct Field {
     /// Optional.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::Entity;
-    use spectral::prelude::*;
-
-    #[test]
-    fn can_deserialize_example_document() {
-        let siren_document = r#"
-        {
-          "class": [ "order" ],
-          "properties": {
-              "orderNumber": 42,
-              "itemCount": 3,
-              "status": "pending"
-          },
-          "entities": [
-            {
-              "class": [ "items", "collection" ],
-              "rel": [ "http://x.io/rels/order-items" ],
-              "href": "http://api.x.io/orders/42/items"
-            },
-            {
-              "class": [ "info", "customer" ],
-              "rel": [ "http://x.io/rels/customer" ],
-              "properties": {
-                "customerId": "pj123",
-                "name": "Peter Joseph"
-              },
-              "links": [
-                { "rel": [ "self" ], "href": "http://api.x.io/customers/pj123" }
-              ]
-            }
-          ],
-          "actions": [
-            {
-              "name": "add-item",
-              "title": "Add Item",
-              "method": "POST",
-              "href": "http://api.x.io/orders/42/items",
-              "type": "application/x-www-form-urlencoded",
-              "fields": [
-                { "name": "orderNumber", "type": "hidden", "value": "42" },
-                { "name": "productCode", "type": "text" },
-                { "name": "quantity", "type": "number" }
-              ]
-            }
-          ],
-          "links": [
-            { "rel": [ "self" ], "href": "http://api.x.io/orders/42" },
-            { "rel": [ "previous" ], "href": "http://api.x.io/orders/41" },
-            { "rel": [ "next" ], "href": "http://api.x.io/orders/43" }
-          ]
-        }"#;
-
-        let result = serde_json::from_str::<Entity>(siren_document);
-
-        assert_that(&result).is_ok();
-    }
 }
