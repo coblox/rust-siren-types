@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use std::error::Error;
+use std::fmt;
 
 #[readonly::make]
 #[derive(Debug, Serialize, Deserialize)]
@@ -58,6 +60,26 @@ pub enum EntityBuilderError {
     /// Whatever you passed, it doesn't serialize to a JSON object
     NotAnObject,
     Serde(serde_json::Error),
+}
+
+impl fmt::Display for EntityBuilderError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let desc = match self {
+            EntityBuilderError::NotAnObject => "does not serialize to an object",
+            EntityBuilderError::Serde(_) => "serialization failure",
+        };
+
+        write!(f, "{}", desc)
+    }
+}
+
+impl std::error::Error for EntityBuilderError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            EntityBuilderError::NotAnObject => None,
+            EntityBuilderError::Serde(inner) => Some(inner),
+        }
+    }
 }
 
 impl From<serde_json::Error> for EntityBuilderError {
