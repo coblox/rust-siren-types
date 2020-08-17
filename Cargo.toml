@@ -4,14 +4,13 @@ description = "Types for the siren mediatype."
 categories = ["web-programming"]
 keywords = ["siren", "mediatype", "rest", "http"]
 repository = "https://github.com/coblox/rust-siren-types"
-version = "0.2.1"
+version = "0.2.2"
 authors = [ "CoBloX developers <team@coblox.tech>" ]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
 http = "0.2"
-readonly = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
