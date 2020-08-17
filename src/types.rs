@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fmt;
 
-#[readonly::make]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Entity {
     /// Describes the nature of an entity's content based on the current
@@ -158,7 +157,6 @@ impl SubEntity {
     }
 }
 
-#[readonly::make]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EntityLink {
     /// Describes the nature of an entity's content based on the current
@@ -182,7 +180,6 @@ pub struct EntityLink {
     pub _type: Option<String>,
 }
 
-#[readonly::make]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NavigationalLink {
     /// Defines the relationship of the link to its entity, per Web Linking
